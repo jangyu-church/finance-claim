@@ -5,7 +5,7 @@
   "lang": "ko",
   "start_url": "./index.html#home",
   "scope": "./",
-  "id": "./",
+  "id": "jyc-finance-claim",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#f4f3ef",
