@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>재정부 관리</title>
+  <meta name="description" content="장유중앙교회 재정부 — 청구 확인·승인·지급 관리">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#2b3a55">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="../icons/admin-192.png">
+  <link rel="apple-touch-icon" href="../icons/admin-apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="재정부">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="admin.css">
+  <script src="../config.js"></script>
+</head>
+<body class="admin">
+  <header class="topbar">
+    <div class="brand" data-go="list">
+      <img src="../icons/admin-192.png" alt="" width="36" height="36">
+      <div><small id="churchName">장유중앙교회</small><b>재정부 관리</b></div>
+    </div>
+    <div class="top-actions">
+      <button class="icon-btn" id="btnReload" aria-label="새로고침">⟳</button>
+      <button class="icon-btn" id="btnSettings" aria-label="설정">⚙︎</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- ───────── 청구 관리 ───────── -->
+    <section id="view-list" class="view active">
+      <div class="install-card" id="installCard">
+        <div><b>재정부 앱 설치하기</b><p>바탕화면에서 바로 열 수 있어요</p></div>
+        <button class="btn install" id="btnInstall">📲 설치</button>
+      </div>
+
+      <div class="tiles">
+        <button class="tile" data-tab="wait"><small>처리 대기</small><b id="tWaitN">0건</b><span id="tWaitS">0원</span></button>
+        <button class="tile accent" data-tab="approved"><small>지급 예정</small><b id="tApprN">0건</b><span id="tApprS">0원</span></button>
+        <button class="tile" data-tab="paid"><small>이번 달 지급</small><b id="tPaidN">0건</b><span id="tPaidS">0원</span></button>
+      </div>
+
+      <div class="seg" role="tablist" id="tabs">
+        <button data-tab="wait" class="on">대기 <i id="cWait"></i></button>
+        <button data-tab="approved">승인 <i id="cAppr"></i></button>
+        <button data-tab="paid">지급완료</button>
+        <button data-tab="rejected">반려</button>
+        <button data-tab="all">전체</button>
+      </div>
+      <input type="search" id="search" class="search" placeholder="🔍 이름 · 부서 · 청구번호 검색">
+
+      <div class="list-head">
+        <span class="muted small" id="listInfo"></span>
+        <button class="link" id="btnSelect" hidden>여러 건 선택</button>
+      </div>
+      <ul class="claims" id="claimList"></ul>
+      <div class="spacer"></div>
+
+      <div class="bulkbar" id="bulkbar" hidden>
+        <div><small id="bulkN">0건 선택</small><b id="bulkS">0원</b></div>
+        <button class="btn" id="btnBulkCancel">취소</button>
+        <button class="btn primary" id="btnBulkDo">일괄 승인</button>
+      </div>
+    </section>
+
+    <!-- ───────── 상세 ───────── -->
+    <section id="view-detail" class="view">
+      <button class="back" data-go="list">‹ 목록</button>
+      <div id="detailBody"></div>
+      <div class="spacer"></div>
+      <div class="actionbar" id="actionbar"></div>
+    </section>
+
+    <!-- ───────── 통계 ───────── -->
+    <section id="view-stats" class="view">
+      <div class="month-nav">
+        <button class="icon-btn" id="mPrev" aria-label="이전 달">‹</button>
+        <b id="mLabel"></b>
+        <button class="icon-btn" id="mNext" aria-label="다음 달">›</button>
+      </div>
+      <div class="tiles">
+        <div class="tile"><small>청구 합계</small><b id="sTotalN">0건</b><span id="sTotalS">0원</span></div>
+        <div class="tile accent"><small>지급 완료</small><b id="sPaidN">0건</b><span id="sPaidS">0원</span></div>
+        <div class="tile"><small>미처리·반려</small><b id="sOpenN">0건</b><span id="sOpenS">0원</span></div>
+      </div>
+      <div class="card"><h2>부서별</h2><div class="bars" id="byDept"></div></div>
+      <div class="card"><h2>계정과목별</h2><div class="bars" id="byAccount"></div></div>
+      <p class="muted small center">※ 접수일 기준 · 반려된 청구는 합계에서 제외됩니다.</p>
+      <div class="spacer"></div>
+    </section>
+  </main>
+
+  <nav class="bottomnav" id="bottomnav">
+    <button data-go="list" class="on"><span>📋</span>청구 관리</button>
+    <button data-go="stats"><span>📊</span>월별 통계</button>
+  </nav>
+
+  <!-- 로그인 / 설정 -->
+  <dialog id="dlgSettings">
+    <form method="dialog">
+      <h2>재정부 로그인</h2>
+      <label>관리자 코드
+        <input id="sCode" type="password" autocomplete="current-password" placeholder="재정부 관리자 코드">
+      </label>
+      <label>처리자 이름 <em>*</em>
+        <input id="sBy" placeholder="예) 김집사 (처리 기록에 남습니다)">
+      </label>
+      <details id="advanced">
+        <summary>서버 주소 (관리자 설정)</summary>
+        <label>Apps Script 웹 앱 주소
+          <input id="sApi" placeholder="https://script.google.com/macros/s/…/exec">
+        </label>
+      </details>
+      <p class="msg" id="sMsg"></p>
+      <div class="dlg-actions">
+        <button class="btn" id="btnLogout" type="button">로그아웃</button>
+        <button class="btn primary" id="btnSaveSettings" value="default">로그인</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- 상태 변경 확인 -->
+  <dialog id="dlgAction">
+    <form method="dialog">
+      <h2 id="actTitle"></h2>
+      <p id="actDesc" class="muted"></p>
+      <label id="actNoteWrap">메모 <span id="actNoteReq"></span>
+        <textarea id="actNote" rows="3" placeholder="청구자에게도 보입니다"></textarea>
+      </label>
+      <p class="msg err" id="actMsg"></p>
+      <div class="dlg-actions">
+        <button class="btn" value="cancel" formnovalidate>취소</button>
+        <button class="btn primary" id="actOk" value="ok">확인</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- 설치 안내 -->
+  <dialog id="dlgInstall">
+    <form method="dialog">
+      <h2>바탕화면에 설치하기</h2>
+      <div id="installGuide"></div>
+      <div class="dlg-actions"><button class="btn primary" value="ok">확인</button></div>
+    </form>
+  </dialog>
+
+  <!-- 영수증 크게 보기 -->
+  <div class="viewer" id="viewer" hidden>
+    <button class="viewer-close" aria-label="닫기">✕</button>
+    <img alt="영수증 원본">
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="overlay" id="overlay"><div class="spinner"></div><p id="overlayMsg">처리 중…</p></div>
+
+  <script src="../common.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

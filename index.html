@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>재정청구</title>
+  <meta name="description" content="장유중앙교회 재정 청구 앱 — 영수증을 찍으면 금액이 자동으로 청구됩니다.">
+  <meta name="theme-color" content="#2f5d50">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="재정청구">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="config.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand" data-go="home">
+      <img src="icons/icon-192.png" alt="" width="36" height="36">
+      <div><small id="churchName">장유중앙교회</small><b>재정청구</b></div>
+    </div>
+    <button class="icon-btn" id="btnSettings" aria-label="설정">⚙︎</button>
+  </header>
+
+  <main>
+    <!-- ───────── 첫 화면 ───────── -->
+    <section id="view-home" class="view active">
+      <div class="install-card" id="installCard">
+        <div>
+          <b>바탕화면에 설치하기</b>
+          <p>앱처럼 바로 열 수 있어요</p>
+        </div>
+        <button class="btn install" id="btnInstall">📲 설치</button>
+      </div>
+
+      <button class="btn primary big" data-go="claim">
+        <span class="big-icon">＋</span>
+        <span><b>새 청구서 작성</b><small>영수증을 찍으면 금액이 자동 입력됩니다</small></span>
+      </button>
+
+      <div class="card">
+        <div class="card-head">
+          <h2>내 청구 내역</h2>
+          <button class="link" id="btnRefreshStatus">상태 새로고침</button>
+        </div>
+        <ul class="history" id="historyList"></ul>
+      </div>
+
+      <div class="card help">
+        <h2>사용 방법</h2>
+        <ol>
+          <li><b>영수증 촬영</b> — 여러 장이면 계속 찍으세요. 장마다 금액이 자동 인식됩니다.</li>
+          <li><b>금액 확인</b> — 인식된 금액이 틀리면 직접 고쳐 주세요.</li>
+          <li><b>영수증이 없을 때</b> — ‘직접 입력’으로 금액과 사유를 적습니다.</li>
+          <li><b>청구하기</b> — 합계 금액으로 재정부에 바로 접수됩니다.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ───────── 청구서 작성 ───────── -->
+    <section id="view-claim" class="view">
+      <div class="card">
+        <h2>청구자 정보</h2>
+        <div class="grid2">
+          <label>이름 <em>*</em><input id="fName" autocomplete="name" placeholder="홍길동"></label>
+          <label>부서 <em>*</em><select id="fDept"></select></label>
+        </div>
+        <label>연락처<input id="fPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="010-0000-0000"></label>
+        <div class="grid3">
+          <label>은행<input id="fBank" placeholder="농협" list="bankList"></label>
+          <label class="span2">계좌번호<input id="fAccount" inputmode="numeric" placeholder="숫자만 입력"></label>
+        </div>
+        <label>예금주<input id="fHolder" placeholder="본인이면 비워 두세요"></label>
+        <label class="check"><input type="checkbox" id="fRemember" checked> 이 휴대폰에 내 정보 기억하기</label>
+        <datalist id="bankList">
+          <option>농협</option><option>국민</option><option>신한</option><option>우리</option><option>하나</option>
+          <option>기업</option><option>부산</option><option>경남</option><option>카카오뱅크</option><option>토스뱅크</option>
+          <option>우체국</option><option>새마을금고</option><option>신협</option><option>수협</option><option>SC제일</option>
+        </datalist>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h2>청구 항목</h2><span class="muted" id="itemCount"></span></div>
+        <div class="add-row">
+          <button class="btn add" id="btnCamera"><span>📷</span>영수증 촬영</button>
+          <button class="btn add" id="btnGallery"><span>🖼️</span>사진 선택</button>
+          <button class="btn add" id="btnManual"><span>✍️</span>직접 입력</button>
+        </div>
+        <input type="file" id="inCamera" accept="image/*" capture="environment" hidden>
+        <input type="file" id="inGallery" accept="image/*" multiple hidden>
+        <div id="items"></div>
+        <p class="empty" id="itemsEmpty">아직 항목이 없습니다.<br>영수증을 촬영하거나 직접 입력해 주세요.</p>
+      </div>
+
+      <div class="card">
+        <h2>청구 사유 / 메모</h2>
+        <textarea id="fMemo" rows="3" placeholder="예) 11월 셋째 주 교사 모임 다과 구입"></textarea>
+      </div>
+      <div class="spacer"></div>
+
+      <div class="totalbar">
+        <div><small id="totalCount">0건</small><b id="totalAmount">0원</b></div>
+        <button class="btn primary" id="btnSubmit">청구하기</button>
+      </div>
+    </section>
+
+    <!-- ───────── 접수 완료 ───────── -->
+    <section id="view-done" class="view">
+      <div class="card done">
+        <div class="done-icon">✓</div>
+        <h2>청구가 접수되었습니다</h2>
+        <p class="muted">청구번호</p>
+        <p class="claim-no" id="doneNo"></p>
+        <p class="done-total" id="doneTotal"></p>
+        <p class="muted">재정부에서 확인 후 입금해 드립니다.<br>진행 상태는 첫 화면 ‘내 청구 내역’에서 볼 수 있어요.</p>
+        <button class="btn primary" data-go="home">처음으로</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- 설정 -->
+  <dialog id="dlgSettings">
+    <form method="dialog">
+      <h2>설정</h2>
+      <label>교회 접근 코드
+        <input id="sCode" inputmode="numeric" placeholder="재정부에서 받은 코드" autocomplete="off">
+      </label>
+      <details id="advanced">
+        <summary>관리자 설정 (서버 주소)</summary>
+        <label>Apps Script 웹 앱 주소
+          <input id="sApi" placeholder="https://script.google.com/macros/s/…/exec">
+        </label>
+        <p class="muted small">config.js 에 주소를 넣어 두었다면 비워 두셔도 됩니다.</p>
+      </details>
+      <p class="msg" id="sMsg"></p>
+      <div class="dlg-actions">
+        <button class="btn" value="cancel" formnovalidate>닫기</button>
+        <button class="btn primary" id="btnSaveSettings" value="default">저장 · 연결 확인</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- 설치 안내 -->
+  <dialog id="dlgInstall">
+    <form method="dialog">
+      <h2>바탕화면에 설치하기</h2>
+      <div id="installGuide"></div>
+      <div class="dlg-actions"><button class="btn primary" value="ok">확인</button></div>
+    </form>
+  </dialog>
+
+  <!-- 제출 확인 -->
+  <dialog id="dlgConfirm">
+    <form method="dialog">
+      <h2>이대로 청구할까요?</h2>
+      <div id="confirmBody"></div>
+      <div class="dlg-actions">
+        <button class="btn" value="cancel">다시 확인</button>
+        <button class="btn primary" value="ok">청구하기</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="overlay" id="overlay"><div class="spinner"></div><p id="overlayMsg">처리 중…</p></div>
+
+  <template id="tplItem">
+    <article class="item">
+      <div class="item-top">
+        <div class="thumb"><img alt="영수증"></div>
+        <div class="item-title">
+          <b class="item-no"></b>
+          <span class="badge"></span>
+        </div>
+        <button class="icon-btn del" aria-label="항목 삭제">✕</button>
+      </div>
+      <label class="amount-label">금액 <em>*</em>
+        <div class="amount-wrap"><input class="iAmount" inputmode="numeric" placeholder="0"><span>원</span></div>
+      </label>
+      <div class="chips"></div>
+      <div class="grid2">
+        <label>사용일<input class="iDate" type="date"></label>
+        <label>사용처<input class="iStore" placeholder="가게 이름"></label>
+      </div>
+      <div class="grid2">
+        <label>계정과목<select class="iAccount"></select></label>
+        <label>내용<input class="iDesc" placeholder="무엇을 샀나요?"></label>
+      </div>
+      <label class="reason">영수증이 없는 사유 <em>*</em><input class="iReason" placeholder="예) 재래시장 현금 구입, 영수증 분실"></label>
+    </article>
+  </template>
+
+  <script src="common.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
