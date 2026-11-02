@@ -4,7 +4,7 @@
   "description": "영수증을 찍으면 금액이 자동으로 청구되는 교회 재정 청구 앱",
   "lang": "ko",
   "start_url": "./index.html#home",
-  "scope": "./",
+    "scope": "./index.html",
   "id": "jyc-finance-claim",
   "display": "standalone",
   "orientation": "portrait",
