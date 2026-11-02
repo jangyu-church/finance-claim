@@ -6,5 +6,5 @@
  */
 window.APP_CONFIG = {
   CHURCH_NAME: '장유중앙교회',
-  API_URL: '',
+  API_URL: 'https://script.google.com/macros/s/AKfycbygVwnd8q0I1xedkp_LKJgV-F7tz7yYS_w6Y4_ECOycr7BZ5P2GFgDsFzUZa7K51MoN/exec',
 };
