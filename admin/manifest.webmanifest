@@ -3,7 +3,7 @@
   "short_name": "재정부",
   "description": "재정 청구 확인·승인·지급 관리",
   "lang": "ko",
-  "id": "./",
+  "id": "jyc-finance-admin",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
